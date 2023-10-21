@@ -42,10 +42,10 @@ examples/hip/%.cpp: examples/cuda/%.cu | examples/hip
 examples/cuda examples/hip:
 	@mkdir -p $@
 	@touch $@/vgpu.h
-	@echo "#ifndef VGPU_H" >> $@/vgpu.h
-	@echo "#define VGPU_H" >> $@/vgpu.h
-	@echo "\n#include \"common.h\"\n" >> $@/vgpu.h
-	@echo "#endif // VGPU_H" >> $@/vgpu.h
+	@printf "#ifndef VGPU_H\n" >> $@/vgpu.h
+	@printf "#define VGPU_H\n" >> $@/vgpu.h
+	@printf "\n#include \"common.h\"\n\n" >> $@/vgpu.h
+	@printf "#endif // VGPU_H\n" >> $@/vgpu.h
 	@cp include/common.h $@
 
 clean::
