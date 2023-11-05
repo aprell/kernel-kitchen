@@ -4,7 +4,7 @@ Prepare and cook compute kernels without heating up the GPU
 
 *Note*: This fun little project is meant for educational purposes first and
 foremost. Experiment around, add more kernels, or try to implement missing
-features. Just don't expect too much, and importantly, ignore performance
+features. Just don't expect too much. And importantly, ignore performance
 unless you do heat up the GPU after all.
 
 ## Example
@@ -12,7 +12,7 @@ unless you do heat up the GPU after all.
 ```console
 $ make examples/hello
 (...)
-$ ./run.sh examples/hello
+$ examples/hello
 Found 1 device
 Device 0 name:	VGPU
 Launching kernel hello_1D<<<dim3(1, 1, 1), dim3(8, 1, 1)>>>
