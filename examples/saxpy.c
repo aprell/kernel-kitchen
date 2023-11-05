@@ -10,8 +10,10 @@
 KERNEL(saxpy, (int n, float a, float *restrict x, float *restrict y))
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
+#ifdef DEBUG
     #pragma omp critical
     printf("Thread(%2d,%2d)\n", blockIdx.x, threadIdx.x);
+#endif
     // Grid-stride loop
     for (int i = idx; i < n; i += stride) {
         y[i] = a * x[i] + y[i];
