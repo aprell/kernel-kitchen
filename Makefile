@@ -18,8 +18,8 @@ $(OBJS): include/vgpu.h include/common.h Makefile
 ifneq ($(call have,FileCheck),)
 check: $(EXES)
 	@for exe in $(sort $^); do \
-	    echo "./run.sh $$exe | FileCheck $$exe.c"; \
-	    ./run.sh $$exe | FileCheck $$exe.c; \
+	    echo "$$exe | FileCheck $$exe.c"; \
+	    $$exe | FileCheck $$exe.c; \
 	done
 else
 check:
