@@ -38,7 +38,7 @@ echo "+---------+---------+---------+"
 
 for x in {1..512}; do
     for y in {1..512}; do
-        if ./run.sh check_launch_configs 1 1 "$x" "$y" > /dev/null 2>&1; then
+        if eval ./check_launch_configs 1 1 "$x" "$y" > /dev/null 2>&1; then
             printf "|   %3d   |   %3d   |   %3d   |\n" "$x" "$y" 1
         else
             break
