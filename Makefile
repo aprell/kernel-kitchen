@@ -95,15 +95,22 @@ endif
 
 ## make HIP=1: Build HIP versions of all examples
 ifeq ($(HIP), 1)
-HIP_PLATFORM ?= nvidia
-HIP_PATH ?= $(HOME)/HIP/nvidia
-HIPCC := $(HIP_PATH)/bin/hipcc
+ifneq ($(call have,hipconfig),)
+  HIP_PLATFORM ?= $(shell hipconfig -P 2> /dev/null)
+else
+  # Assume `nvidia`
+  HIP_PLATFORM ?= nvidia
+endif
 ifeq ($(HIP_PLATFORM), nvidia)
+  HIP_PATH ?= $(HOME)/HIP/nvidia
   CUDA_PATH ?= /opt/nvidia/hpc_sdk/Linux_x86_64/22.11/cuda
   HIP_ENV := HIP_PLATFORM=$(HIP_PLATFORM)
   HIP_ENV += CUDA_PATH=$(CUDA_PATH)
-  HIPCC := $(HIP_ENV) $(HIPCC)
+else
+  # `amd`
+  HIP_PATH ?= /opt/rocm
 endif
+HIPCC := $(HIP_ENV) $(HIP_PATH)/bin/hipcc
 HIP_EXES := $(subst /,/hip/,$(EXES))
 all: $(HIP_EXES)
 clean::
