@@ -27,7 +27,7 @@ int main(void) {
 
     hipMalloc((void **)&d_results, N * sizeof(float));
 
-    hipMemcpyToSymbol(HIP_SYMBOL(numbers), results, 8 * sizeof(float));
+    hipMemcpyToSymbol(HIP_SYMBOL(numbers), results, N * sizeof(float));
 
     sum<<<dim3(2), dim3(4)>>>(d_results);
 
