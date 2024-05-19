@@ -2,10 +2,12 @@
 
 Prepare and cook compute kernels without heating up the GPU
 
-*Note*: This fun little project is meant for educational purposes first and
-foremost. Experiment around, add more kernels, or try to implement missing
-features. Just don't expect too much. And importantly, ignore performance
-unless you do heat up the GPU after all.
+> [!IMPORTANT]
+>
+> This fun little project is meant for educational purposes first and
+> foremost. Experiment around, add more kernels, or implement missing
+> features. Just don't expect too much. And importantly, ignore performance
+> unless you do heat up the GPU after all.
 
 ## Example
 
