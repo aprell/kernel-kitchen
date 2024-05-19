@@ -99,7 +99,7 @@ void name(__VA_ARGS__) { \
 
 #define __shared__
 
-#define __constant__ const
+#define __constant__
 
 #define __syncthreads() _Pragma("omp barrier")
 

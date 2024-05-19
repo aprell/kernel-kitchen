@@ -26,7 +26,7 @@ int main(void) {
 
     cudaMalloc((void **)&d_results, N * sizeof(float));
 
-    cudaMemcpyToSymbol(numbers, results, 8 * sizeof(float));
+    cudaMemcpyToSymbol(numbers, results, N * sizeof(float));
 
     sum(/* <<< */ dim3(2), dim3(4) /* >>> */, d_results);
 
