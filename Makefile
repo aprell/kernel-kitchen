@@ -14,6 +14,9 @@ all: $(EXES)
 
 $(OBJS): include/vgpu.h include/common.h Makefile
 
+%.i: %.c
+	$(CC) $(CPPFLAGS) -E $< -o $@
+
 ## make check: Run FileChecks
 ifneq ($(call have,FileCheck),)
 check: $(EXES)
