@@ -103,10 +103,12 @@ void name(__VA_ARGS__) { \
 
 #define __syncthreads() _Pragma("omp barrier")
 
-#define atomicAdd(addr, value) { \
-  _Pragma("omp atomic") \
-  *(addr) += value; \
-}
+#define atomicAdd(addr, value) ({ \
+  typeof(*(addr)) $t0; \
+  _Pragma("omp atomic capture") \
+  { $t0 = *(addr); *(addr) += value; } \
+  $t0; \
+})
 
 #define atomicSub(addr, value) atomicAdd(addr, -(value))
 #define atomicInc(addr)        atomicAdd(addr, 1)
