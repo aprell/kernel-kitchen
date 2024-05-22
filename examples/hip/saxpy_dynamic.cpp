@@ -12,7 +12,7 @@
 // https://upcommons.upc.edu/handle/2117/125844
 
 // /!\ A scalar doesn't work here because of OpenMP's data mapping
-__device__ static int block[0];
+__device__ static int block[1];
 
 __global__ void saxpy_dynamic(int n, float a, float *restrict x, float *restrict y) {
     __shared__ int next;
