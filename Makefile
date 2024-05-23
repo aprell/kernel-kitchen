@@ -19,8 +19,14 @@ $(OBJS): include/vgpu.h include/common.h Makefile
 
 ## make check: Run FileChecks
 ifneq ($(call have,FileCheck),)
+ifeq ($(CUDA), 1)
+check: --check-cuda
+endif
+ifeq ($(HIP), 1)
+check: --check-hip
+endif
 check: $(EXES)
-	@for exe in $(sort $^); do \
+	@for exe in $(sort $(EXES)); do \
 	    echo "$$exe | FileCheck $$exe.c"; \
 	    $$exe | FileCheck $$exe.c; \
 	done
@@ -84,6 +90,11 @@ ifeq ($(CUDA), 1)
 NVCC := nvcc
 CUDA_EXES := $(subst /,/cuda/,$(EXES))
 all: $(CUDA_EXES)
+--check-cuda: $(CUDA_EXES)
+	@for exe in $(sort $(CUDA_EXES)); do \
+	    echo "$$exe | FileCheck $$exe.cu"; \
+	    $$exe | FileCheck $$exe.cu; \
+	done
 clean::
 	$(RM) $(CUDA_EXES)
 endif
@@ -116,6 +127,11 @@ endif
 HIPCC := $(HIP_ENV) $(HIP_PATH)/bin/hipcc
 HIP_EXES := $(subst /,/hip/,$(EXES))
 all: $(HIP_EXES)
+--check-hip: $(HIP_EXES)
+	@for exe in $(sort $(HIP_EXES)); do \
+	    echo "$$exe | FileCheck $$exe.cpp"; \
+	    $$exe | FileCheck $$exe.cpp; \
+	done
 clean::
 	$(RM) $(HIP_EXES)
 endif
