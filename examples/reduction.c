@@ -28,7 +28,7 @@ KERNEL(reduce, (int n, float *in, float *out),
         __syncthreads();
     }
 
-#ifndef __CUDACC__
+#ifdef __VGPU__
     if (lidx == 0) {
         #pragma omp critical
         {
@@ -38,7 +38,7 @@ KERNEL(reduce, (int n, float *in, float *out),
             printf("\n");
         }
     }
-#endif
+#endif // __VGPU__
 
     // Global reduction
     if (lidx == 0) {
@@ -78,6 +78,7 @@ int main(void) {
     return 0;
 }
 
+#ifdef __VGPU__
 // CHECK-DAG:  6560  3280  1640  1640   820   820   820   820
 // CHECK-DAG:  6560  3280  1640  1640   820   820   820   820
 // CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
@@ -88,5 +89,6 @@ int main(void) {
 // CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
 // CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
 // CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
+#endif // __VGPU__
 //            +----
 // CHECK:     65536

@@ -112,6 +112,14 @@ function cuda.kernel_call(call)
     return ("%s<<<%s>>>(%s);"):format(call[1], call[2], call[3] or "")
 end
 
+------------------------
+-- VGPU-specific code --
+------------------------
+
+-- Pattern
+local vgpu_code =
+    begin_with "#ifdef __VGPU__" * match_until "#endif // __VGPU__" * end_with "#endif // __VGPU__"
+
 ------------
 -- CUDAFY --
 ------------
@@ -119,6 +127,7 @@ end
 local cudafy = apply {
     function (source) return gsub(source, kernel, cuda.kernel) end,
     function (source) return gsub(source, kernel_call, cuda.kernel_call) end,
+    function (source) return gsub(source, vgpu_code, "") end,
 }
 
 if #arg > 0 then

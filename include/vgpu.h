@@ -7,6 +7,8 @@
 #include <omp.h>
 #include "common.h"
 
+#define __VGPU__
+
 typedef struct {
     int x, y, z;
 } dim3;

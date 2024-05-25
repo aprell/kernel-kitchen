@@ -29,17 +29,7 @@ __global__ void reduce(int n, float *in, float *out) {
         __syncthreads();
     }
 
-#ifndef __CUDACC__
-    if (lidx == 0) {
-        #pragma omp critical
-        {
-            for (int i = 0; i < BLOCK_SIZE; i++) {
-                printf("%5.0f ", temp[i]);
-            }
-            printf("\n");
-        }
-    }
-#endif
+
 
     // Global reduction
     if (lidx == 0) {
@@ -79,16 +69,7 @@ int main(void) {
     return 0;
 }
 
-// CHECK-DAG:  6560  3280  1640  1640   820   820   820   820
-// CHECK-DAG:  6560  3280  1640  1640   820   820   820   820
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
-// CHECK-DAG:  6552  3276  1638  1638   819   819   819   819
+
 //            +----
 // CHECK:     65536
 
