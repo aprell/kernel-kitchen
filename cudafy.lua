@@ -33,6 +33,10 @@ local function match_until(pat)
     return C ((1 - expect(pat)) ^ 0)
 end
 
+local function match_between(pat1, pat2)
+    return begin_with(pat1) * match_until(pat2) * end_with(pat2)
+end
+
 local function anywhere(pat)
   return P { pat + 1 * V (1) }
 end
@@ -56,14 +60,9 @@ end
 
 local cuda = {}
 
-local kernel_params =
-    expect "(" * match_until ")" * expect ")"
-
-local shared_decls =
-    match_until ")"
-
-local kernel_body =
-    match_until "END_KERNEL"
+local kernel_params = match_between("(", ")")
+local shared_decls = end_with "," * match_until ")"
+local kernel_body = match_until "END_KERNEL"
 
 -- Pattern
 local kernel = Ct (
@@ -72,7 +71,7 @@ local kernel = Ct (
             * identifier
             * expect ","
             * kernel_params
-            * (end_with "," * shared_decls) ^ -1
+            * shared_decls ^ -1
         * end_with ")"
         * kernel_body
     * end_with "END_KERNEL"
@@ -92,18 +91,15 @@ end
 -- Kernel calls --
 ------------------
 
-local kernel_config =
-    expect "/* <<< */" * match_until "/* >>> */" * expect "/* >>> */"
-
-local kernel_args =
-    match_until ");"
+local kernel_config = match_between("/* <<< */", "/* >>> */")
+local kernel_args = expect "," * match_until ");"
 
 -- Pattern
 local kernel_call = Ct (
     identifier
     * begin_with "("
         * kernel_config
-        * (expect "," * kernel_args) ^ -1
+        * kernel_args ^ -1
     * end_with ");"
 )
 
@@ -117,8 +113,7 @@ end
 ------------------------
 
 -- Pattern
-local vgpu_code =
-    begin_with "#ifdef __VGPU__" * match_until "#endif // __VGPU__" * end_with "#endif // __VGPU__"
+local vgpu_code = match_between("#ifdef __VGPU__", "#endif // __VGPU__")
 
 ------------
 -- CUDAFY --
