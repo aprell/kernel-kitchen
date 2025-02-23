@@ -128,6 +128,9 @@ typedef enum cudaMemcpyKind {
 // Ignore return values of type `cudaError_t`
 //
 
+static inline void cudaGetLastError(void) {
+}
+
 static inline void cudaMalloc(void **devPtr, size_t size) {
     *devPtr = malloc(size);
 }
