@@ -1,13 +1,13 @@
 #ifndef VGPU_H
 #define VGPU_H
 
+#define __VGPU__
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <omp.h>
 #include "common.h"
-
-#define __VGPU__
 
 typedef struct {
     int x, y, z;

@@ -48,7 +48,7 @@ examples/hip/%.cpp: examples/cuda/%.cu | examples/hip
 	hipify-perl $< > $@
 	@diff -u $< $@ > $@.diff; [ $$? = 1 ]
 
-examples/cuda examples/hip:
+examples/cuda:
 	@mkdir -p $@
 	@touch $@/vgpu.h
 	@printf "#ifndef VGPU_H\n" >> $@/vgpu.h
@@ -56,6 +56,11 @@ examples/cuda examples/hip:
 	@printf "\n#include \"common.h\"\n\n" >> $@/vgpu.h
 	@printf "#endif // VGPU_H\n" >> $@/vgpu.h
 	@cp include/common.h $@
+
+examples/hip:
+	@mkdir -p $@
+	@cp examples/cuda/vgpu.h $@
+	@hipify-perl include/common.h > $@/common.h
 
 clean::
 	$(RM) $(OBJS) $(EXES)
