@@ -122,7 +122,8 @@ ifeq ($(HIP_PLATFORM), nvidia)
   HIP_ENV += CUDA_PATH=$(CUDA_PATH)
 else
   # `amd`
-  HIP_PATH ?= /opt/rocm
+  ROCM_PATH ?= /opt/rocm
+  HIP_PATH ?= $(ROCM_PATH)
 endif
 HIPCC := $(HIP_ENV) $(HIP_PATH)/bin/hipcc
 HIP_EXES := $(subst /,/hip/,$(EXES))
