@@ -52,8 +52,8 @@ int main(void) {
     assert(A && B);
 
     int *d_A, *d_B;
-    hipMalloc((void **)&d_A, width * height * sizeof(int));
-    hipMalloc((void **)&d_B, width * height * sizeof(int));
+    CHECK(hipMalloc((void **)&d_A, width * height * sizeof(int)));
+    CHECK(hipMalloc((void **)&d_B, width * height * sizeof(int)));
 
     dim3 thread_blocks = dim3(ceil_div(width, 2), ceil_div(height, 4));
     dim3 threads_per_block = dim3(2, 4);
@@ -63,14 +63,14 @@ int main(void) {
     threads_per_block = dim3(3, 2);
     blur<<<thread_blocks, threads_per_block>>>(d_A, d_B, width, height);
 
-    hipMemcpy(A, d_A, width * height * sizeof(int), hipMemcpyDeviceToHost);
-    hipMemcpy(B, d_B, width * height * sizeof(int), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(A, d_A, width * height * sizeof(int), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(B, d_B, width * height * sizeof(int), hipMemcpyDeviceToHost));
 
     print(A, width, height);
     print(B, width, height);
 
-    hipFree(d_A);
-    hipFree(d_B);
+    CHECK(hipFree(d_A));
+    CHECK(hipFree(d_B));
 
     free(A);
     free(B);

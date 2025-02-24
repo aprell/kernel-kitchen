@@ -54,24 +54,24 @@ int main(void) {
     a = (float *)malloc(n * sizeof(float));
     assert(a);
 
-    cudaMalloc((void **)&d_a, (n + 1) * sizeof(float));
+    CHECK(cudaMalloc((void **)&d_a, (n + 1) * sizeof(float)));
     assert(d_a);
 
     for (int i = 0; i < n; i++) {
         a[i] = 1;
     }
 
-    cudaMemcpy(d_a, a, n * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_a + n, &sum, sizeof(float), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_a, a, n * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_a + n, &sum, sizeof(float), cudaMemcpyHostToDevice));
 
     reduce(/* <<< */ dim3(10), dim3(BLOCK_SIZE) /* >>> */, n, d_a, d_a + n);
 
-    cudaMemcpy(&sum, d_a + n, sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(&sum, d_a + n, sizeof(float), cudaMemcpyDeviceToHost));
 
     printf("%0.f\n", sum);
     assert(sum == n);
 
-    cudaFree(d_a);
+    CHECK(cudaFree(d_a));
 
     free(a);
 

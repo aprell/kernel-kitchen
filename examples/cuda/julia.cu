@@ -70,17 +70,17 @@ int main(void) {
     assert(img);
 
     unsigned char *d_img;
-    cudaMalloc((void **)&d_img, DIM * DIM * sizeof(int));
+    CHECK(cudaMalloc((void **)&d_img, DIM * DIM * sizeof(int)));
 
     dim3 thread_blocks = dim3(DIM / 10, DIM / 10);
     dim3 threads_per_block = dim3(4, 2);
     kernel<<<thread_blocks, threads_per_block>>>(d_img);
 
-    cudaMemcpy(img, d_img, DIM * DIM * sizeof(int), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(img, d_img, DIM * DIM * sizeof(int), cudaMemcpyDeviceToHost));
 
     display(img);
 
-    cudaFree(d_img);
+    CHECK(cudaFree(d_img));
 
     free(img);
 

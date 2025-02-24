@@ -44,8 +44,8 @@ int main(void) {
     b = (int *)malloc((n + 2 * RADIUS) * sizeof(int));
     assert(a && b);
 
-    hipMalloc((void **)&d_a, (n + 2 * RADIUS) * sizeof(int));
-    hipMalloc((void **)&d_b, (n + 2 * RADIUS) * sizeof(int));
+    CHECK(hipMalloc((void **)&d_a, (n + 2 * RADIUS) * sizeof(int)));
+    CHECK(hipMalloc((void **)&d_b, (n + 2 * RADIUS) * sizeof(int)));
     assert(d_a && d_b);
 
     for (int i = 0; i < n + 2 * RADIUS; i++) {
@@ -53,12 +53,12 @@ int main(void) {
         b[i] = -1;
     }
 
-    hipMemcpy(d_a, a, (n + 2 * RADIUS) * sizeof(int), hipMemcpyHostToDevice);
-    hipMemcpy(d_b, a, (n + 2 * RADIUS) * sizeof(int), hipMemcpyHostToDevice);
+    CHECK(hipMemcpy(d_a, a, (n + 2 * RADIUS) * sizeof(int), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_b, a, (n + 2 * RADIUS) * sizeof(int), hipMemcpyHostToDevice));
 
     stencil_1D<<<dim3(n / BLOCK_SIZE), dim3(BLOCK_SIZE)>>>(d_a + RADIUS, d_b + RADIUS);
 
-    hipMemcpy(b, d_b, (n + 2 * RADIUS) * sizeof(int), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(b, d_b, (n + 2 * RADIUS) * sizeof(int), hipMemcpyDeviceToHost));
 
     for (int i = RADIUS; i < RADIUS + 5; i++) {
         printf("b[%d] = %d\n", i, b[i]);
@@ -70,8 +70,8 @@ int main(void) {
         printf("b[%d] = %d\n", i, b[i]);
     }
 
-    hipFree(d_a);
-    hipFree(d_b);
+    CHECK(hipFree(d_a));
+    CHECK(hipFree(d_b));
 
     free(a);
     free(b);

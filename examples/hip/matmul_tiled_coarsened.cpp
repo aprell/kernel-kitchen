@@ -54,9 +54,9 @@ int main(void) {
     float **C = (float **)malloc_matrix(m, p);
 
     float *d_A, *d_B, *d_C;
-    hipMalloc((void **)&d_A, m * n * sizeof(float));
-    hipMalloc((void **)&d_B, n * p * sizeof(float));
-    hipMalloc((void **)&d_C, m * p * sizeof(float));
+    CHECK(hipMalloc((void **)&d_A, m * n * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_B, n * p * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_C, m * p * sizeof(float)));
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -70,20 +70,20 @@ int main(void) {
         }
     }
 
-    hipMemcpy(d_A, A[0], m * n * sizeof(float), hipMemcpyHostToDevice);
-    hipMemcpy(d_B, B[0], n * p * sizeof(float), hipMemcpyHostToDevice);
+    CHECK(hipMemcpy(d_A, A[0], m * n * sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_B, B[0], n * p * sizeof(float), hipMemcpyHostToDevice));
 
     dim3 thread_blocks = dim3(ceil_div(n, TILE_WIDTH), ceil_div(m, TILE_WIDTH));
     dim3 threads_per_block = dim3(TILE_WIDTH, TILE_WIDTH);
     matmul<<<thread_blocks, threads_per_block>>>(d_A, d_B, d_C, m, n, p);
 
-    hipMemcpy(C[0], d_C, m * p * sizeof(float), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(C[0], d_C, m * p * sizeof(float), hipMemcpyDeviceToHost));
 
     print_matrix(C, m, p);
 
-    hipFree(d_A);
-    hipFree(d_B);
-    hipFree(d_C);
+    CHECK(hipFree(d_A));
+    CHECK(hipFree(d_B));
+    CHECK(hipFree(d_C));
 
     free_matrix(A);
     free_matrix(B);

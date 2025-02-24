@@ -30,7 +30,7 @@ __global__ void init() {
 int main(void) {
     init<<<dim3(2), dim3(4)>>>();
 
-    cudaDeviceSynchronize();
+    CHECK(cudaDeviceSynchronize());
 
     return 0;
 }

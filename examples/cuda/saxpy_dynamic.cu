@@ -36,8 +36,8 @@ int main(void) {
     y = (float *)malloc(n * sizeof(float));
     assert(x && y);
 
-    cudaMalloc((void **)&d_x, n * sizeof(float));
-    cudaMalloc((void **)&d_y, n * sizeof(float));
+    CHECK(cudaMalloc((void **)&d_x, n * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_y, n * sizeof(float)));
     assert(d_x && d_y);
 
     for (int i = 0; i < n; i++) {
@@ -45,12 +45,12 @@ int main(void) {
         y[i] = n - i;
     }
 
-    cudaMemcpy(d_x, x, n * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_y, y, n * sizeof(float), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_x, x, n * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_y, y, n * sizeof(float), cudaMemcpyHostToDevice));
 
     saxpy_dynamic<<<dim3(8), dim3(8)>>>(n, 2.0, d_x, d_y);
 
-    cudaMemcpy(y, d_y, n * sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(y, d_y, n * sizeof(float), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < 5; i++) {
         printf("y[%d] = %.0f\n", i, y[i]);
@@ -62,8 +62,8 @@ int main(void) {
         printf("y[%d] = %.0f\n", i, y[i]);
     }
 
-    cudaFree(d_x);
-    cudaFree(d_y);
+    CHECK(cudaFree(d_x));
+    CHECK(cudaFree(d_y));
 
     free(x);
     free(y);

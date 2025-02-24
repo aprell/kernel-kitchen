@@ -43,14 +43,14 @@ int main(void) {
         data[i] = rand() % 256;
     }
 
-    cudaMalloc((void **)&d_data, DATA_SIZE * sizeof(unsigned char));
-    cudaMalloc((void **)&d_hist, HIST_SIZE * sizeof(unsigned int));
+    CHECK(cudaMalloc((void **)&d_data, DATA_SIZE * sizeof(unsigned char)));
+    CHECK(cudaMalloc((void **)&d_hist, HIST_SIZE * sizeof(unsigned int)));
 
-    cudaMemcpy(d_data, data, DATA_SIZE * sizeof(unsigned char), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_data, data, DATA_SIZE * sizeof(unsigned char), cudaMemcpyHostToDevice));
 
     histogram<<<dim3(10), dim3(8)>>>(d_data, d_hist);
 
-    cudaMemcpy(hist, d_hist, HIST_SIZE * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(hist, d_hist, HIST_SIZE * sizeof(unsigned int), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < HIST_SIZE; i += 8) {
         for (int j = 0; j < 8; j++) {
@@ -69,8 +69,8 @@ int main(void) {
         assert(hist[i] == 0);
     }
 
-    cudaFree(d_data);
-    cudaFree(d_hist);
+    CHECK(cudaFree(d_data));
+    CHECK(cudaFree(d_hist));
 
     return 0;
 }

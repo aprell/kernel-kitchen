@@ -29,8 +29,8 @@ int main(void) {
     y = (float *)malloc(n * sizeof(float));
     assert(x && y);
 
-    hipMalloc((void **)&d_x, n * sizeof(float));
-    hipMalloc((void **)&d_y, n * sizeof(float));
+    CHECK(hipMalloc((void **)&d_x, n * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_y, n * sizeof(float)));
     assert(d_x && d_y);
 
     for (int i = 0; i < n; i++) {
@@ -38,12 +38,12 @@ int main(void) {
         y[i] = n - i;
     }
 
-    hipMemcpy(d_x, x, n * sizeof(float), hipMemcpyHostToDevice);
-    hipMemcpy(d_y, y, n * sizeof(float), hipMemcpyHostToDevice);
+    CHECK(hipMemcpy(d_x, x, n * sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_y, y, n * sizeof(float), hipMemcpyHostToDevice));
 
     saxpy<<<dim3(8), dim3(8)>>>(n, 2.0, d_x, d_y);
 
-    hipMemcpy(y, d_y, n * sizeof(float), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(y, d_y, n * sizeof(float), hipMemcpyDeviceToHost));
 
     for (int i = 0; i < 5; i++) {
         printf("y[%d] = %.0f\n", i, y[i]);
@@ -55,8 +55,8 @@ int main(void) {
         printf("y[%d] = %.0f\n", i, y[i]);
     }
 
-    hipFree(d_x);
-    hipFree(d_y);
+    CHECK(hipFree(d_x));
+    CHECK(hipFree(d_y));
 
     free(x);
     free(y);

@@ -52,9 +52,9 @@ int main(void) {
     float **C = (float **)malloc_matrix(m, p);
 
     float *d_A, *d_B, *d_C;
-    cudaMalloc((void **)&d_A, m * n * sizeof(float));
-    cudaMalloc((void **)&d_B, n * p * sizeof(float));
-    cudaMalloc((void **)&d_C, m * p * sizeof(float));
+    CHECK(cudaMalloc((void **)&d_A, m * n * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_B, n * p * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_C, m * p * sizeof(float)));
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -68,20 +68,20 @@ int main(void) {
         }
     }
 
-    cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_B, B[0], n * p * sizeof(float), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_B, B[0], n * p * sizeof(float), cudaMemcpyHostToDevice));
 
     dim3 thread_blocks = dim3(ceil_div(n, TILE_WIDTH), ceil_div(m, TILE_WIDTH));
     dim3 threads_per_block = dim3(TILE_WIDTH, TILE_WIDTH);
     matmul(/* <<< */ thread_blocks, threads_per_block /* >>> */, d_A, d_B, d_C, m, n, p);
 
-    cudaMemcpy(C[0], d_C, m * p * sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(C[0], d_C, m * p * sizeof(float), cudaMemcpyDeviceToHost));
 
     print_matrix(C, m, p);
 
-    cudaFree(d_A);
-    cudaFree(d_B);
-    cudaFree(d_C);
+    CHECK(cudaFree(d_A));
+    CHECK(cudaFree(d_B));
+    CHECK(cudaFree(d_C));
 
     free_matrix(A);
     free_matrix(B);

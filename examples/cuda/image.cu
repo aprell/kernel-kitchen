@@ -51,8 +51,8 @@ int main(void) {
     assert(A && B);
 
     int *d_A, *d_B;
-    cudaMalloc((void **)&d_A, width * height * sizeof(int));
-    cudaMalloc((void **)&d_B, width * height * sizeof(int));
+    CHECK(cudaMalloc((void **)&d_A, width * height * sizeof(int)));
+    CHECK(cudaMalloc((void **)&d_B, width * height * sizeof(int)));
 
     dim3 thread_blocks = dim3(ceil_div(width, 2), ceil_div(height, 4));
     dim3 threads_per_block = dim3(2, 4);
@@ -62,14 +62,14 @@ int main(void) {
     threads_per_block = dim3(3, 2);
     blur<<<thread_blocks, threads_per_block>>>(d_A, d_B, width, height);
 
-    cudaMemcpy(A, d_A, width * height * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(B, d_B, width * height * sizeof(int), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(A, d_A, width * height * sizeof(int), cudaMemcpyDeviceToHost));
+    CHECK(cudaMemcpy(B, d_B, width * height * sizeof(int), cudaMemcpyDeviceToHost));
 
     print(A, width, height);
     print(B, width, height);
 
-    cudaFree(d_A);
-    cudaFree(d_B);
+    CHECK(cudaFree(d_A));
+    CHECK(cudaFree(d_B));
 
     free(A);
     free(B);

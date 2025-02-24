@@ -44,14 +44,14 @@ int main(void) {
         data[i] = rand() % 256;
     }
 
-    hipMalloc((void **)&d_data, DATA_SIZE * sizeof(unsigned char));
-    hipMalloc((void **)&d_hist, HIST_SIZE * sizeof(unsigned int));
+    CHECK(hipMalloc((void **)&d_data, DATA_SIZE * sizeof(unsigned char)));
+    CHECK(hipMalloc((void **)&d_hist, HIST_SIZE * sizeof(unsigned int)));
 
-    hipMemcpy(d_data, data, DATA_SIZE * sizeof(unsigned char), hipMemcpyHostToDevice);
+    CHECK(hipMemcpy(d_data, data, DATA_SIZE * sizeof(unsigned char), hipMemcpyHostToDevice));
 
     histogram<<<dim3(10), dim3(8)>>>(d_data, d_hist);
 
-    hipMemcpy(hist, d_hist, HIST_SIZE * sizeof(unsigned int), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(hist, d_hist, HIST_SIZE * sizeof(unsigned int), hipMemcpyDeviceToHost));
 
     for (int i = 0; i < HIST_SIZE; i += 8) {
         for (int j = 0; j < 8; j++) {
@@ -70,8 +70,8 @@ int main(void) {
         assert(hist[i] == 0);
     }
 
-    hipFree(d_data);
-    hipFree(d_hist);
+    CHECK(hipFree(d_data));
+    CHECK(hipFree(d_hist));
 
     return 0;
 }

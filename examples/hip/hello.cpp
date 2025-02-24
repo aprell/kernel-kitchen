@@ -19,25 +19,25 @@ __global__ void hello_3D() {
 int main(void) {
     int count;
 
-    hipGetDeviceCount(&count);
+    CHECK(hipGetDeviceCount(&count));
     printf("Found %d device%s\n", count, count != 1 ? "s" : "");
 
     for (int i = 0; i < count; i++) {
         hipDeviceProp_t prop;
-        hipGetDeviceProperties(&prop, i);
+        CHECK(hipGetDeviceProperties(&prop, i));
         printf("Device %d name:\t%s\n", i, prop.name);
     }
 
     hello_1D<<<dim3(1), dim3(8)>>>();
-    //                 ^^^^^^^^^^^^^^^^ Execution configuration
+    CHECK(hipGetLastError());
 
     hello_2D<<<dim3(1), dim3(4, 2)>>>();
-    //                 ^^^^^^^^^^^^^^^^^^^ Execution configuration
+    CHECK(hipGetLastError());
 
     hello_3D<<<dim3(1), dim3(4, 2, 1)>>>();
-    //                 ^^^^^^^^^^^^^^^^^^^^^^ Execution configuration
+    CHECK(hipGetLastError());
 
-    hipDeviceSynchronize();
+    CHECK(hipDeviceSynchronize());
 
     return 0;
 }

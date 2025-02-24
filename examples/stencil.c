@@ -42,8 +42,8 @@ int main(void) {
     b = (int *)malloc((n + 2 * RADIUS) * sizeof(int));
     assert(a && b);
 
-    cudaMalloc((void **)&d_a, (n + 2 * RADIUS) * sizeof(int));
-    cudaMalloc((void **)&d_b, (n + 2 * RADIUS) * sizeof(int));
+    CHECK(cudaMalloc((void **)&d_a, (n + 2 * RADIUS) * sizeof(int)));
+    CHECK(cudaMalloc((void **)&d_b, (n + 2 * RADIUS) * sizeof(int)));
     assert(d_a && d_b);
 
     for (int i = 0; i < n + 2 * RADIUS; i++) {
@@ -51,12 +51,12 @@ int main(void) {
         b[i] = -1;
     }
 
-    cudaMemcpy(d_a, a, (n + 2 * RADIUS) * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, a, (n + 2 * RADIUS) * sizeof(int), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_a, a, (n + 2 * RADIUS) * sizeof(int), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_b, a, (n + 2 * RADIUS) * sizeof(int), cudaMemcpyHostToDevice));
 
     stencil_1D(/* <<< */ dim3(n / BLOCK_SIZE), dim3(BLOCK_SIZE) /* >>> */, d_a + RADIUS, d_b + RADIUS);
 
-    cudaMemcpy(b, d_b, (n + 2 * RADIUS) * sizeof(int), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(b, d_b, (n + 2 * RADIUS) * sizeof(int), cudaMemcpyDeviceToHost));
 
     for (int i = RADIUS; i < RADIUS + 5; i++) {
         printf("b[%d] = %d\n", i, b[i]);
@@ -68,8 +68,8 @@ int main(void) {
         printf("b[%d] = %d\n", i, b[i]);
     }
 
-    cudaFree(d_a);
-    cudaFree(d_b);
+    CHECK(cudaFree(d_a));
+    CHECK(cudaFree(d_b));
 
     free(a);
     free(b);

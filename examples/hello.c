@@ -18,25 +18,25 @@ END_KERNEL
 int main(void) {
     int count;
 
-    cudaGetDeviceCount(&count);
+    CHECK(cudaGetDeviceCount(&count));
     printf("Found %d device%s\n", count, count != 1 ? "s" : "");
 
     for (int i = 0; i < count; i++) {
         cudaDeviceProp prop;
-        cudaGetDeviceProperties(&prop, i);
+        CHECK(cudaGetDeviceProperties(&prop, i));
         printf("Device %d name:\t%s\n", i, prop.name);
     }
 
     hello_1D(/* <<< */ dim3(1), dim3(8) /* >>> */);
-    //                 ^^^^^^^^^^^^^^^^ Execution configuration
+    CHECK(cudaGetLastError());
 
     hello_2D(/* <<< */ dim3(1), dim3(4, 2) /* >>> */);
-    //                 ^^^^^^^^^^^^^^^^^^^ Execution configuration
+    CHECK(cudaGetLastError());
 
     hello_3D(/* <<< */ dim3(1), dim3(4, 2, 1) /* >>> */);
-    //                 ^^^^^^^^^^^^^^^^^^^^^^ Execution configuration
+    CHECK(cudaGetLastError());
 
-    cudaDeviceSynchronize();
+    CHECK(cudaDeviceSynchronize());
 
     return 0;
 }

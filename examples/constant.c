@@ -24,19 +24,19 @@ int main(void) {
         results[i] = i + 1;
     }
 
-    cudaMalloc((void **)&d_results, N * sizeof(float));
+    CHECK(cudaMalloc((void **)&d_results, N * sizeof(float)));
 
-    cudaMemcpyToSymbol(numbers, results, N * sizeof(float));
+    CHECK(cudaMemcpyToSymbol(numbers, results, N * sizeof(float)));
 
     sum(/* <<< */ dim3(2), dim3(4) /* >>> */, d_results);
 
-    cudaMemcpy(results, d_results, N * sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(results, d_results, N * sizeof(float), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < N; i++) {
         printf("%6.2f\n", results[i]);
     }
 
-    cudaFree(d_results);
+    CHECK(cudaFree(d_results));
 
     return 0;
 }

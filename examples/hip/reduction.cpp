@@ -46,24 +46,24 @@ int main(void) {
     a = (float *)malloc(n * sizeof(float));
     assert(a);
 
-    hipMalloc((void **)&d_a, (n + 1) * sizeof(float));
+    CHECK(hipMalloc((void **)&d_a, (n + 1) * sizeof(float)));
     assert(d_a);
 
     for (int i = 0; i < n; i++) {
         a[i] = 1;
     }
 
-    hipMemcpy(d_a, a, n * sizeof(float), hipMemcpyHostToDevice);
-    hipMemcpy(d_a + n, &sum, sizeof(float), hipMemcpyHostToDevice);
+    CHECK(hipMemcpy(d_a, a, n * sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_a + n, &sum, sizeof(float), hipMemcpyHostToDevice));
 
     reduce<<<dim3(10), dim3(BLOCK_SIZE)>>>(n, d_a, d_a + n);
 
-    hipMemcpy(&sum, d_a + n, sizeof(float), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(&sum, d_a + n, sizeof(float), hipMemcpyDeviceToHost));
 
     printf("%0.f\n", sum);
     assert(sum == n);
 
-    hipFree(d_a);
+    CHECK(hipFree(d_a));
 
     free(a);
 

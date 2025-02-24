@@ -39,9 +39,9 @@ int main(void) {
     float **ATT = (float **)malloc_matrix(m, n);
 
     float *d_A, *d_AT, *d_ATT;
-    cudaMalloc((void **)&d_A, m * n * sizeof(float));
-    cudaMalloc((void **)&d_AT, n * m * sizeof(float));
-    cudaMalloc((void **)&d_ATT, m * n * sizeof(float));
+    CHECK(cudaMalloc((void **)&d_A, m * n * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_AT, n * m * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_ATT, m * n * sizeof(float)));
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -49,19 +49,19 @@ int main(void) {
         }
     }
 
-    cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice));
 
     dim3 thread_blocks = dim3(ceil_div(n, 2), ceil_div(m, 4));
     dim3 threads_per_block = dim3(2, 4);
     transpose_read_coalesced<<<thread_blocks, threads_per_block>>>(d_A, d_AT, m, n);
 
-    cudaMemcpy(AT[0], d_AT, n * m * sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(AT[0], d_AT, n * m * sizeof(float), cudaMemcpyDeviceToHost));
 
     thread_blocks = dim3(ceil_div(n, 2), ceil_div(m, 4));
     threads_per_block = dim3(2, 4);
     transpose_write_coalesced<<<thread_blocks, threads_per_block>>>(d_AT, d_ATT, n, m);
 
-    cudaMemcpy(ATT[0], d_ATT, m * n * sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(ATT[0], d_ATT, m * n * sizeof(float), cudaMemcpyDeviceToHost));
 
     print_matrix(AT, n, m);
 
@@ -71,9 +71,9 @@ int main(void) {
         }
     }
 
-    cudaFree(d_A);
-    cudaFree(d_AT);
-    cudaFree(d_ATT);
+    CHECK(cudaFree(d_A));
+    CHECK(cudaFree(d_AT));
+    CHECK(cudaFree(d_ATT));
 
     free_matrix(A);
     free_matrix(AT);

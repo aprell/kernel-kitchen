@@ -71,17 +71,17 @@ int main(void) {
     assert(img);
 
     unsigned char *d_img;
-    hipMalloc((void **)&d_img, DIM * DIM * sizeof(int));
+    CHECK(hipMalloc((void **)&d_img, DIM * DIM * sizeof(int)));
 
     dim3 thread_blocks = dim3(DIM / 10, DIM / 10);
     dim3 threads_per_block = dim3(4, 2);
     kernel<<<thread_blocks, threads_per_block>>>(d_img);
 
-    hipMemcpy(img, d_img, DIM * DIM * sizeof(int), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(img, d_img, DIM * DIM * sizeof(int), hipMemcpyDeviceToHost));
 
     display(img);
 
-    hipFree(d_img);
+    CHECK(hipFree(d_img));
 
     free(img);
 

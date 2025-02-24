@@ -25,19 +25,19 @@ int main(void) {
         results[i] = i + 1;
     }
 
-    hipMalloc((void **)&d_results, N * sizeof(float));
+    CHECK(hipMalloc((void **)&d_results, N * sizeof(float)));
 
-    hipMemcpyToSymbol(HIP_SYMBOL(numbers), results, N * sizeof(float));
+    CHECK(hipMemcpyToSymbol(HIP_SYMBOL(numbers), results, N * sizeof(float)));
 
     sum<<<dim3(2), dim3(4)>>>(d_results);
 
-    hipMemcpy(results, d_results, N * sizeof(float), hipMemcpyDeviceToHost);
+    CHECK(hipMemcpy(results, d_results, N * sizeof(float), hipMemcpyDeviceToHost));
 
     for (int i = 0; i < N; i++) {
         printf("%6.2f\n", results[i]);
     }
 
-    hipFree(d_results);
+    CHECK(hipFree(d_results));
 
     return 0;
 }

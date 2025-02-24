@@ -34,8 +34,8 @@ int main(void) {
     float **AT = (float **)malloc_matrix(n, m);
 
     float *d_A, *d_AT;
-    cudaMalloc((void **)&d_A, m * n * sizeof(float));
-    cudaMalloc((void **)&d_AT, n * m * sizeof(float));
+    CHECK(cudaMalloc((void **)&d_A, m * n * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_AT, n * m * sizeof(float)));
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -43,18 +43,18 @@ int main(void) {
         }
     }
 
-    cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice);
+    CHECK(cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice));
 
     dim3 thread_blocks = dim3(ceil_div(n, TILE_WIDTH), ceil_div(m, TILE_WIDTH));
     dim3 threads_per_block = dim3(TILE_WIDTH, TILE_WIDTH);
     transpose_read_write_coalesced(/* <<< */ thread_blocks, threads_per_block /* >>> */, d_A, d_AT, m, n);
 
-    cudaMemcpy(AT[0], d_AT, n * m * sizeof(float), cudaMemcpyDeviceToHost);
+    CHECK(cudaMemcpy(AT[0], d_AT, n * m * sizeof(float), cudaMemcpyDeviceToHost));
 
     print_matrix(AT, n, m);
 
-    cudaFree(d_A);
-    cudaFree(d_AT);
+    CHECK(cudaFree(d_A));
+    CHECK(cudaFree(d_AT));
 
     free_matrix(A);
     free_matrix(AT);
