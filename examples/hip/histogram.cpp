@@ -48,6 +48,7 @@ int main(void) {
     CHECK(hipMalloc((void **)&d_hist, HIST_SIZE * sizeof(unsigned int)));
 
     CHECK(hipMemcpy(d_data, data, DATA_SIZE * sizeof(unsigned char), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_hist, hist, HIST_SIZE * sizeof(unsigned int), hipMemcpyHostToDevice));
 
     histogram<<<dim3(10), dim3(8)>>>(d_data, d_hist);
 

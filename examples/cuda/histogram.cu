@@ -47,6 +47,7 @@ int main(void) {
     CHECK(cudaMalloc((void **)&d_hist, HIST_SIZE * sizeof(unsigned int)));
 
     CHECK(cudaMemcpy(d_data, data, DATA_SIZE * sizeof(unsigned char), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_hist, hist, HIST_SIZE * sizeof(unsigned int), cudaMemcpyHostToDevice));
 
     histogram<<<dim3(10), dim3(8)>>>(d_data, d_hist);
 
