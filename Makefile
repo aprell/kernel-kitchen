@@ -12,7 +12,7 @@ have = $(if $(shell command -v $(1) 2> /dev/null),1)
 ## make (all): Build all examples
 all: $(EXES)
 
-$(OBJS): include/vgpu.h include/common.h Makefile
+$(OBJS): include/vgpu.h include/common.h
 
 %.i: %.c
 	$(CC) $(CPPFLAGS) -E $< -o $@
