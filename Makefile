@@ -42,7 +42,7 @@ examples/cuda/%.cu: examples/%.c | examples/cuda
 	lua cudafy.lua $< > $@
 
 %: %.cpp
-	$(HIPCC) -Iexamples $< -o $@
+	$(HIPCC) -Iexamples -Rpass-analysis=kernel-resource-usage $< -o $@
 
 examples/hip/%.cpp: examples/cuda/%.cu | examples/hip
 	hipify-perl $< > $@
