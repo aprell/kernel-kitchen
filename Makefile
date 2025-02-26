@@ -42,7 +42,7 @@ examples/cuda/%.cu: examples/%.c | examples/cuda
 	lua cudafy.lua $< > $@
 
 %: %.cpp
-	$(HIPCC) -Iexamples -Rpass-analysis=kernel-resource-usage $< -o $@
+	$(HIPCC) --offload-arch=$(GFX) -Iexamples -Rpass-analysis=kernel-resource-usage $< -o $@
 
 examples/hip/%.cpp: examples/cuda/%.cu | examples/hip
 	hipify-perl $< > $@
@@ -129,6 +129,7 @@ else
   # `amd`
   ROCM_PATH ?= /opt/rocm
   HIP_PATH ?= $(ROCM_PATH)
+  GFX ?= gfx90a
 endif
 HIPCC := $(HIP_ENV) $(HIP_PATH)/bin/hipcc
 HIP_EXES := $(subst /,/hip/,$(EXES))
