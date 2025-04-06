@@ -17,7 +17,7 @@ __global__ void reduce(int n, float *in, float *out) {
 
     // Thread-local reduction
     for (int i = gidx; i < n; i += stride) {
-        temp[lidx] += in[gidx];
+        temp[lidx] += in[i];
     }
 
     __syncthreads();
