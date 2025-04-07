@@ -2,7 +2,7 @@
 
 set -eu
 
-cat << EOF > check_launch_configs.c
+cat << EOF > check_block_dims.c
 #include <assert.h>
 #include <stdio.h>
 #include "vgpu.h"
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 }
 EOF
 
-make -s check_launch_configs
+make -s check_block_dims
 
 echo " Supported block dimensions"
 echo "+---------+---------+---------+"
@@ -37,7 +37,7 @@ echo "+---------+---------+---------+"
 
 for x in {1..512}; do
     for y in {1..512}; do
-        if eval ./check_launch_configs 1 1 "$x" "$y" 2> /dev/null; then
+        if eval ./check_block_dims 1 1 "$x" "$y" 2> /dev/null; then
             printf "|   %3d   |   %3d   |   %3d   |\n" "$x" "$y" 1
         else
             break
@@ -47,4 +47,4 @@ done
 
 echo "+---------+---------+---------+"
 
-rm check_launch_configs{.c,}
+rm check_block_dims{.c,}
