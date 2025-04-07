@@ -7,8 +7,7 @@ cat << EOF > check_launch_configs.c
 #include <stdio.h>
 #include "vgpu.h"
 
-KERNEL(check, ())
-END_KERNEL
+KERNEL(check, ()) END_KERNEL
 
 int main(int argc, char *argv[]) {
     assert(argc == 5);
@@ -38,7 +37,7 @@ echo "+---------+---------+---------+"
 
 for x in {1..512}; do
     for y in {1..512}; do
-        if eval ./check_launch_configs 1 1 "$x" "$y" > /dev/null 2>&1; then
+        if eval ./check_launch_configs 1 1 "$x" "$y" 2> /dev/null; then
             printf "|   %3d   |   %3d   |   %3d   |\n" "$x" "$y" 1
         else
             break

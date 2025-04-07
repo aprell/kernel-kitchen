@@ -44,8 +44,8 @@ static dim3 threadIdx;
 #define CHECK_KERNEL_LAUNCH(name) \
 do { \
     if (IS_BLOCK_000 && IS_THREAD_000) { \
-        printf("Launching kernel " #name "<<<dim3(%d, %d, %d), dim3(%d, %d, %d)>>>\n", \
-               gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z); \
+        fprintf(stderr, "Launching kernel " #name "<<<dim3(%d, %d, %d), dim3(%d, %d, %d)>>>\n", \
+                gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z); \
     } \
     assert(gridDim.x * gridDim.y == omp_get_num_teams() && gridDim.z == 1); \
     assert(blockDim.x * blockDim.y == omp_get_team_size(1) && blockDim.z == 1); \

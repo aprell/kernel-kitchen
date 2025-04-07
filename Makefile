@@ -28,7 +28,7 @@ endif
 check: $(EXES)
 	@for exe in $(sort $(EXES)); do \
 	    echo "$$exe | FileCheck $$exe.c"; \
-	    $$exe | FileCheck $$exe.c; \
+	    $$exe 2> /dev/null | FileCheck $$exe.c; \
 	done
 else
 check:
@@ -98,7 +98,7 @@ all: $(CUDA_EXES)
 --check-cuda: $(CUDA_EXES)
 	@for exe in $(sort $(CUDA_EXES)); do \
 	    echo "$$exe | FileCheck $$exe.cu"; \
-	    $$exe | FileCheck $$exe.cu; \
+	    $$exe 2> /dev/null | FileCheck $$exe.cu; \
 	done
 clean::
 	$(RM) $(CUDA_EXES)
@@ -137,7 +137,7 @@ all: $(HIP_EXES)
 --check-hip: $(HIP_EXES)
 	@for exe in $(sort $(HIP_EXES)); do \
 	    echo "$$exe | FileCheck $$exe.cpp"; \
-	    $$exe | FileCheck $$exe.cpp; \
+	    $$exe 2> /dev/null | FileCheck $$exe.cpp; \
 	done
 clean::
 	$(RM) $(HIP_EXES)
