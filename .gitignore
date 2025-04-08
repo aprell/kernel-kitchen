@@ -70,6 +70,7 @@ dkms.conf
 **/stencil
 **/transpose
 **/transpose_tiled
+**/vec_add
 
 examples/hip/*.diff
 
