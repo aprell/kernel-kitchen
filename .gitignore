@@ -65,6 +65,7 @@ dkms.conf
 **/matmul_tiled
 **/matmul_tiled_coarsened
 **/reduction
+**/reverse
 **/saxpy
 **/saxpy_dynamic
 **/shared
