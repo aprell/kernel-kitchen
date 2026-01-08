@@ -74,7 +74,7 @@ ifneq ($(call have,bear),)
 compdb: $(COMPDB)
 $(COMPDB): Makefile
 	@$(MAKE) --no-print-directory clean
-	bear -o $(COMPDB) $(MAKE) --no-print-directory
+	bear -o $(COMPDB) -- $(MAKE) --no-print-directory
 clean::
 	$(RM) $(COMPDB)
 else
