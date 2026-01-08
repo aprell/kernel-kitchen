@@ -8,7 +8,7 @@
     hipError_t error = call; \
     if (error != hipSuccess) { \
         fprintf(stderr, "Error: %s: '%s' at %s:%d\n", \
-                #call, hipGetErrorString(call), __FILE__, __LINE__); \
+                #call, hipGetErrorString(error), __FILE__, __LINE__); \
         exit(EXIT_FAILURE); \
     } \
 }

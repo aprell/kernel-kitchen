@@ -8,7 +8,7 @@
     cudaError_t error = call; \
     if (error != cudaSuccess) { \
         fprintf(stderr, "Error: %s: '%s' at %s:%d\n", \
-                #call, cudaGetErrorString(call), __FILE__, __LINE__); \
+                #call, cudaGetErrorString(error), __FILE__, __LINE__); \
         exit(EXIT_FAILURE); \
     } \
 }
