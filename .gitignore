@@ -54,6 +54,14 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# clangd cache
+.cache/
+
+# Generated files
+compile_commands.json
+examples/hip/*.diff
+
+# Executables
 **/add
 **/constant
 **/dot_product
@@ -73,7 +81,3 @@ dkms.conf
 **/transpose
 **/transpose_tiled
 **/vec_add
-
-examples/hip/*.diff
-
-compile_commands.json
