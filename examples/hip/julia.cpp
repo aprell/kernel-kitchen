@@ -26,8 +26,9 @@ static inline __device__ struct complex mul(struct complex c, struct complex d) 
 
 __device__ int julia(int x, int y) {
     const float scale = 1.5;
-    float jx = scale * (float)(DIM/2 - x) / (DIM/2);
-    float jy = scale * (float)(DIM/2 - y) / (DIM/2);
+    const float dim_half = DIM / 2.0;
+    float jx = scale * (dim_half - x) / dim_half;
+    float jy = scale * (dim_half - y) / dim_half;
 
     struct complex c = {-0.8, 0.156};
     struct complex a = {jx, jy};
