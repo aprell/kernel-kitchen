@@ -14,6 +14,8 @@ all: $(EXES)
 
 $(OBJS): include/vgpu.h include/common.h
 
+examples/julia.o: CFLAGS += -ffp-contract=off
+
 %.i: %.c
 	$(CC) $(CPPFLAGS) -E $< -o $@
 
