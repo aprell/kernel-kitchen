@@ -1,9 +1,10 @@
+#include "hip/hip_runtime.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "vgpu.h"
 
-KERNEL(vec_add, (const float *a, const float *b, float *c, int n))
+__global__ void vector_add(const float *a, const float *b, float *c, int n) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 #ifdef DEBUG
@@ -14,7 +15,7 @@ KERNEL(vec_add, (const float *a, const float *b, float *c, int n))
     for (int i = idx; i < n; i += stride) {
         c[i] = a[i] + b[i];
     }
-END_KERNEL
+}
 
 int main(void) {
     float *a, *b, *c;
@@ -25,21 +26,21 @@ int main(void) {
     b = (float *)malloc(n * sizeof(float));
     c = (float *)malloc(n * sizeof(float));
 
-    CHECK(cudaMalloc((void **)&d_a, n * sizeof(float)));
-    CHECK(cudaMalloc((void **)&d_b, n * sizeof(float)));
-    CHECK(cudaMalloc((void **)&d_c, n * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_a, n * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_b, n * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_c, n * sizeof(float)));
 
     for (int i = 0; i < n; i++) {
         a[i] = i;
         b[i] = n - i;
     }
 
-    CHECK(cudaMemcpy(d_a, a, n * sizeof(float), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_b, b, n * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_a, a, n * sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_b, b, n * sizeof(float), hipMemcpyHostToDevice));
 
-    vec_add(/* <<< */ dim3(8), dim3(8) /* >>> */, d_a, d_b, d_c, n);
+    vector_add<<<dim3(8), dim3(8)>>>(d_a, d_b, d_c, n);
 
-    CHECK(cudaMemcpy(c, d_c, n * sizeof(float), cudaMemcpyDeviceToHost));
+    CHECK(hipMemcpy(c, d_c, n * sizeof(float), hipMemcpyDeviceToHost));
 
     for (int i = 0; i < 5; i++) {
         printf("c[%d] = %.0f\n", i, c[i]);
@@ -51,9 +52,9 @@ int main(void) {
         printf("c[%d] = %.0f\n", i, c[i]);
     }
 
-    CHECK(cudaFree(d_a));
-    CHECK(cudaFree(d_b));
-    CHECK(cudaFree(d_c));
+    CHECK(hipFree(d_a));
+    CHECK(hipFree(d_b));
+    CHECK(hipFree(d_c));
 
     free(a);
     free(b);
@@ -73,3 +74,4 @@ int main(void) {
 // CHECK: c[1021] = 1024
 // CHECK: c[1022] = 1024
 // CHECK: c[1023] = 1024
+

@@ -80,4 +80,4 @@ examples/hip/*.diff
 **/stencil
 **/transpose
 **/transpose_tiled
-**/vec_add
+**/vector_add

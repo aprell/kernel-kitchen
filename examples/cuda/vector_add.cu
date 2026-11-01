@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "vgpu.h"
 
-__global__ void vec_add(const float *a, const float *b, float *c, int n) {
+__global__ void vector_add(const float *a, const float *b, float *c, int n) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 #ifdef DEBUG
@@ -37,7 +37,7 @@ int main(void) {
     CHECK(cudaMemcpy(d_a, a, n * sizeof(float), cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_b, b, n * sizeof(float), cudaMemcpyHostToDevice));
 
-    vec_add<<<dim3(8), dim3(8)>>>(d_a, d_b, d_c, n);
+    vector_add<<<dim3(8), dim3(8)>>>(d_a, d_b, d_c, n);
 
     CHECK(cudaMemcpy(c, d_c, n * sizeof(float), cudaMemcpyDeviceToHost));
 
