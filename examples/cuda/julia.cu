@@ -60,9 +60,9 @@ void display(unsigned char *img) {
     for (int y = 0; y < DIM; y++) {
         for (int x = 0; x < DIM; x++) {
             int o = y * DIM + x;
-            printf(img[o * 4 + 0] == 255 ? "." : " ");
+            putchar(img[o * 4 + 0] == 255 ? '.' : ' ');
         }
-        printf("\n");
+        putchar('\n');
     }
 }
 
