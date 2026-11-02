@@ -3,23 +3,23 @@
 
 #define TILE_WIDTH 2
 
-__global__ void matmul(float *A, float *B, float *C, int m, int n, int p) {
+__global__ void matmul(float *A, float *B, float *C, int M, int N, int K) {
     __shared__ float A_tile[TILE_WIDTH][TILE_WIDTH];
     __shared__ float B_tile[TILE_WIDTH][TILE_WIDTH];
 
 
-    #define A(i, j) A[(i) * n + (j)] // m x n
-    #define B(i, j) B[(i) * p + (j)] // n x p
-    #define C(i, j) C[(i) * p + (j)] // m x p
+    #define A(i, j) A[(i) * K + (j)] // M x K
+    #define B(i, j) B[(i) * N + (j)] // K x N
+    #define C(i, j) C[(i) * N + (j)] // M x N
 
     int i = blockIdx.y * TILE_WIDTH + threadIdx.y;
     int j = blockIdx.x * TILE_WIDTH + threadIdx.x;
 
-    if (i < m && j < p) {
+    if (i < M && j < N) {
         int ii = threadIdx.y;
         int jj = threadIdx.x;
         float t = 0;
-        for (int x = 0; x < n / TILE_WIDTH; x++) {
+        for (int x = 0; x < K / TILE_WIDTH; x++) {
             // Load tiles of A and B
             A_tile[ii][jj] = A(i, x * TILE_WIDTH + jj);
             B_tile[ii][jj] = B(x * TILE_WIDTH + ii, j);
@@ -39,39 +39,42 @@ __global__ void matmul(float *A, float *B, float *C, int m, int n, int p) {
 }
 
 int main(void) {
-    // Matrix dimensions must be a multiple of TILE_WIDTH
-    int m = 40, n = 10, p = n;
-    float **A = (float **)malloc_matrix(m, n);
-    float **B = (float **)malloc_matrix(n, p);
-    float **C = (float **)malloc_matrix(m, p);
+    int M = 40, N = 10, K = N;
+    assert(M % TILE_WIDTH == 0);
+    assert(N % TILE_WIDTH == 0);
+    assert(K % TILE_WIDTH == 0);
+
+    float **A = (float **)malloc_matrix(M, K);
+    float **B = (float **)malloc_matrix(K, N);
+    float **C = (float **)malloc_matrix(M, N);
 
     float *d_A, *d_B, *d_C;
-    CHECK(cudaMalloc((void **)&d_A, m * n * sizeof(float)));
-    CHECK(cudaMalloc((void **)&d_B, n * p * sizeof(float)));
-    CHECK(cudaMalloc((void **)&d_C, m * p * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_A, M * K * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_B, K * N * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_C, M * N * sizeof(float)));
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            A[i][j] = i * n + j;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < K; j++) {
+            A[i][j] = i * K + j;
         }
     }
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < p; j++) {
+    for (int i = 0; i < K; i++) {
+        for (int j = 0; j < N; j++) {
             B[i][j] = (j >= i) ? 1 : 0;
         }
     }
 
-    CHECK(cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B[0], n * p * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_A, A[0], M * K * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_B, B[0], K * N * sizeof(float), cudaMemcpyHostToDevice));
 
-    dim3 thread_blocks = dim3(ceil_div(n, TILE_WIDTH), ceil_div(m, TILE_WIDTH));
+    dim3 thread_blocks = dim3(ceil_div(K, TILE_WIDTH), ceil_div(M, TILE_WIDTH));
     dim3 threads_per_block = dim3(TILE_WIDTH, TILE_WIDTH);
-    matmul<<<thread_blocks, threads_per_block>>>(d_A, d_B, d_C, m, n, p);
+    matmul<<<thread_blocks, threads_per_block>>>(d_A, d_B, d_C, M, N, K);
 
-    CHECK(cudaMemcpy(C[0], d_C, m * p * sizeof(float), cudaMemcpyDeviceToHost));
+    CHECK(cudaMemcpy(C[0], d_C, M * N * sizeof(float), cudaMemcpyDeviceToHost));
 
-    print_matrix(C, m, p);
+    print_matrix(C, M, N);
 
     CHECK(cudaFree(d_A));
     CHECK(cudaFree(d_B));

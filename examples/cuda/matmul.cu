@@ -1,17 +1,17 @@
 #include "matrix.h"
 #include "vgpu.h"
 
-__global__ void matmul(float *A, float *B, float *C, int m, int n, int p) {
-    #define A(i, j) A[(i) * n + (j)] // m x n
-    #define B(i, j) B[(i) * p + (j)] // n x p
-    #define C(i, j) C[(i) * p + (j)] // m x p
+__global__ void matmul(float *A, float *B, float *C, int M, int N, int K) {
+    #define A(i, j) A[(i) * K + (j)] // M x K
+    #define B(i, j) B[(i) * N + (j)] // K x N
+    #define C(i, j) C[(i) * N + (j)] // M x N
 
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (i < m && j < p) {
+    if (i < M && j < N) {
         float t = 0;
-        for (int k = 0; k < n; k++) {
+        for (int k = 0; k < K; k++) {
             t += A(i, k) * B(k, j);
         }
         C(i, j) = t;
@@ -23,38 +23,38 @@ __global__ void matmul(float *A, float *B, float *C, int m, int n, int p) {
 }
 
 int main(void) {
-    int m = 40, n = 10, p = n;
-    float **A = (float **)malloc_matrix(m, n);
-    float **B = (float **)malloc_matrix(n, p);
-    float **C = (float **)malloc_matrix(m, p);
+    int M = 40, N = 10, K = N;
+    float **A = (float **)malloc_matrix(M, K);
+    float **B = (float **)malloc_matrix(K, N);
+    float **C = (float **)malloc_matrix(M, N);
 
     float *d_A, *d_B, *d_C;
-    CHECK(cudaMalloc((void **)&d_A, m * n * sizeof(float)));
-    CHECK(cudaMalloc((void **)&d_B, n * p * sizeof(float)));
-    CHECK(cudaMalloc((void **)&d_C, m * p * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_A, M * K * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_B, K * N * sizeof(float)));
+    CHECK(cudaMalloc((void **)&d_C, M * N * sizeof(float)));
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            A[i][j] = i * n + j;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < K; j++) {
+            A[i][j] = i * K + j;
         }
     }
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < p; j++) {
+    for (int i = 0; i < K; i++) {
+        for (int j = 0; j < N; j++) {
             B[i][j] = (j >= i) ? 1 : 0;
         }
     }
 
-    CHECK(cudaMemcpy(d_A, A[0], m * n * sizeof(float), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B[0], n * p * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_A, A[0], M * K * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_B, B[0], K * N * sizeof(float), cudaMemcpyHostToDevice));
 
-    dim3 thread_blocks = dim3(ceil_div(n, 4), ceil_div(m, 2));
+    dim3 thread_blocks = dim3(ceil_div(K, 4), ceil_div(M, 2));
     dim3 threads_per_block = dim3(4, 2);
-    matmul<<<thread_blocks, threads_per_block>>>(d_A, d_B, d_C, m, n, p);
+    matmul<<<thread_blocks, threads_per_block>>>(d_A, d_B, d_C, M, N, K);
 
-    CHECK(cudaMemcpy(C[0], d_C, m * p * sizeof(float), cudaMemcpyDeviceToHost));
+    CHECK(cudaMemcpy(C[0], d_C, M * N * sizeof(float), cudaMemcpyDeviceToHost));
 
-    print_matrix(C, m, p);
+    print_matrix(C, M, N);
 
     CHECK(cudaFree(d_A));
     CHECK(cudaFree(d_B));
