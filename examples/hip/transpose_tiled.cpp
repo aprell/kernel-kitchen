@@ -4,24 +4,24 @@
 
 #define TILE_WIDTH 2
 
-__global__ void transpose_read_write_coalesced(float *A, float *AT, int m, int n) {
+__global__ void transpose_read_write_coalesced(float *A, float *AT, int M, int N) {
     __shared__ float A_tile[TILE_WIDTH][TILE_WIDTH];
 
 
-    #define A(i, j)  A [(i) * n + (j)] // m x n
-    #define AT(i, j) AT[(i) * m + (j)] // n x m
+    #define  A(i, j)  A[(i) * N + (j)] // M x N
+    #define AT(i, j) AT[(i) * M + (j)] // N x M
 
     int i = blockIdx.y * TILE_WIDTH + threadIdx.y;
     int j = blockIdx.x * TILE_WIDTH + threadIdx.x;
 
-    if (i < m && j < n) {
+    if (i < M && j < N) {
         int ii = threadIdx.y;
         int jj = threadIdx.x;
         A_tile[jj][ii] = A(i, j);
         __syncthreads();
         i = blockIdx.x * TILE_WIDTH + threadIdx.y;
         j = blockIdx.y * TILE_WIDTH + threadIdx.x;
-        if (i < n && j < m) {
+        if (i < N && j < M) {
             AT(i, j) = A_tile[ii][jj];
         }
     }
@@ -31,29 +31,29 @@ __global__ void transpose_read_write_coalesced(float *A, float *AT, int m, int n
 }
 
 int main(void) {
-    int m = 10, n = 40;
-    float **A = (float **)malloc_matrix(m, n);
-    float **AT = (float **)malloc_matrix(n, m);
+    int M = 10, N = 40;
+    float **A = (float **)malloc_matrix(M, N);
+    float **AT = (float **)malloc_matrix(N, M);
 
     float *d_A, *d_AT;
-    CHECK(hipMalloc((void **)&d_A, m * n * sizeof(float)));
-    CHECK(hipMalloc((void **)&d_AT, n * m * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_A, M * N * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_AT, N * M * sizeof(float)));
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            A[i][j] = i * n + j;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            A[i][j] = i * N + j;
         }
     }
 
-    CHECK(hipMemcpy(d_A, A[0], m * n * sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_A, A[0], M * N * sizeof(float), hipMemcpyHostToDevice));
 
-    dim3 thread_blocks = dim3(ceil_div(n, TILE_WIDTH), ceil_div(m, TILE_WIDTH));
+    dim3 thread_blocks = dim3(ceil_div(N, TILE_WIDTH), ceil_div(M, TILE_WIDTH));
     dim3 threads_per_block = dim3(TILE_WIDTH, TILE_WIDTH);
-    transpose_read_write_coalesced<<<thread_blocks, threads_per_block>>>(d_A, d_AT, m, n);
+    transpose_read_write_coalesced<<<thread_blocks, threads_per_block>>>(d_A, d_AT, M, N);
 
-    CHECK(hipMemcpy(AT[0], d_AT, n * m * sizeof(float), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(AT[0], d_AT, N * M * sizeof(float), hipMemcpyDeviceToHost));
 
-    print_matrix(AT, n, m);
+    print_matrix(AT, N, M);
 
     CHECK(hipFree(d_A));
     CHECK(hipFree(d_AT));

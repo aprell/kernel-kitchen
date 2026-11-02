@@ -3,14 +3,14 @@
 #include "matrix.h"
 #include "vgpu.h"
 
-__global__ void transpose_read_coalesced(float *A, float *AT, int m, int n) {
-    #define A(i, j)  A [(i) * n + (j)] // m x n
-    #define AT(i, j) AT[(i) * m + (j)] // n x m
+__global__ void transpose_read_coalesced(float *A, float *AT, int M, int N) {
+    #define  A(i, j)  A[(i) * N + (j)] // M x N
+    #define AT(i, j) AT[(i) * M + (j)] // N x M
 
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (i < m && j < n) {
+    if (i < M && j < N) {
         AT(j, i) = A(i, j);
     }
 
@@ -18,14 +18,14 @@ __global__ void transpose_read_coalesced(float *A, float *AT, int m, int n) {
     #undef AT
 }
 
-__global__ void transpose_write_coalesced(float *A, float *AT, int m, int n) {
-    #define A(i, j)  A [(i) * n + (j)] // m x n
-    #define AT(i, j) AT[(i) * m + (j)] // n x m
+__global__ void transpose_write_coalesced(float *A, float *AT, int M, int N) {
+    #define  A(i, j)  A[(i) * N + (j)] // M x N
+    #define AT(i, j) AT[(i) * M + (j)] // N x M
 
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (i < n && j < m) {
+    if (i < N && j < M) {
         AT(i, j) = A(j, i);
     }
 
@@ -34,40 +34,40 @@ __global__ void transpose_write_coalesced(float *A, float *AT, int m, int n) {
 }
 
 int main(void) {
-    int m = 10, n = 40;
-    float **A = (float **)malloc_matrix(m, n);
-    float **AT = (float **)malloc_matrix(n, m);
-    float **ATT = (float **)malloc_matrix(m, n);
+    int M = 10, N = 40;
+    float **A = (float **)malloc_matrix(M, N);
+    float **AT = (float **)malloc_matrix(N, M);
+    float **ATT = (float **)malloc_matrix(M, N);
 
     float *d_A, *d_AT, *d_ATT;
-    CHECK(hipMalloc((void **)&d_A, m * n * sizeof(float)));
-    CHECK(hipMalloc((void **)&d_AT, n * m * sizeof(float)));
-    CHECK(hipMalloc((void **)&d_ATT, m * n * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_A, M * N * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_AT, N * M * sizeof(float)));
+    CHECK(hipMalloc((void **)&d_ATT, M * N * sizeof(float)));
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            A[i][j] = i * n + j;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            A[i][j] = i * N + j;
         }
     }
 
-    CHECK(hipMemcpy(d_A, A[0], m * n * sizeof(float), hipMemcpyHostToDevice));
+    CHECK(hipMemcpy(d_A, A[0], M * N * sizeof(float), hipMemcpyHostToDevice));
 
-    dim3 thread_blocks = dim3(ceil_div(n, 2), ceil_div(m, 4));
+    dim3 thread_blocks = dim3(ceil_div(N, 2), ceil_div(M, 4));
     dim3 threads_per_block = dim3(2, 4);
-    transpose_read_coalesced<<<thread_blocks, threads_per_block>>>(d_A, d_AT, m, n);
+    transpose_read_coalesced<<<thread_blocks, threads_per_block>>>(d_A, d_AT, M, N);
 
-    CHECK(hipMemcpy(AT[0], d_AT, n * m * sizeof(float), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(AT[0], d_AT, N * M * sizeof(float), hipMemcpyDeviceToHost));
 
-    thread_blocks = dim3(ceil_div(n, 2), ceil_div(m, 4));
+    thread_blocks = dim3(ceil_div(N, 2), ceil_div(M, 4));
     threads_per_block = dim3(2, 4);
-    transpose_write_coalesced<<<thread_blocks, threads_per_block>>>(d_AT, d_ATT, n, m);
+    transpose_write_coalesced<<<thread_blocks, threads_per_block>>>(d_AT, d_ATT, N, M);
 
-    CHECK(hipMemcpy(ATT[0], d_ATT, m * n * sizeof(float), hipMemcpyDeviceToHost));
+    CHECK(hipMemcpy(ATT[0], d_ATT, M * N * sizeof(float), hipMemcpyDeviceToHost));
 
-    print_matrix(AT, n, m);
+    print_matrix(AT, N, M);
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
             assert(A[i][j] == ATT[i][j]);
         }
     }
