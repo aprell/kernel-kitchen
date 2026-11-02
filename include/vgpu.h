@@ -172,6 +172,7 @@ static inline void cudaDeviceSynchronize(void) {
 __attribute__((constructor))
 static inline void vgpu_init(void) {
     setenv("KMP_TEAMS_THREAD_LIMIT", "1024", /* overwrite = */ 1);
+    setenv("OMP_TARGET_OFFLOAD", "DISABLED", /* overwrite = */ 1);
 }
 
 #endif // VGPU_H
