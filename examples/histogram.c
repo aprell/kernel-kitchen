@@ -9,28 +9,27 @@ static unsigned char data[DATA_SIZE];
 #define HIST_SIZE 256
 static unsigned int hist[HIST_SIZE];
 
-KERNEL(histogram, (unsigned char *data, unsigned int *hist),
-    __shared__ unsigned int temp[HIST_SIZE];)
-    int idx = threadIdx.x;
-    int stride = blockDim.x;
-    for (int i = idx; i < HIST_SIZE; i += stride) {
-        temp[i] = 0;
+KERNEL(histogram, (const unsigned char *data, unsigned int *hist),
+    __shared__ unsigned int sdata[HIST_SIZE];)
+    int gid = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.x;
+
+    for (int i = tid; i < HIST_SIZE; i += blockDim.x) {
+        sdata[i] = 0;
     }
 
     __syncthreads();
 
-    idx += blockIdx.x * blockDim.x;
-    stride *= gridDim.x;
-    for (int i = idx; i < DATA_SIZE; i += stride) {
-        atomicAdd(&temp[data[i]], 1);
+    for (int i = gid; i < DATA_SIZE; i += blockDim.x * gridDim.x) {
+        atomicAdd(&sdata[data[i]], 1);
     }
 
     __syncthreads();
 
-    idx = threadIdx.x;
-    stride = blockDim.x;
-    for (int i = idx; i < HIST_SIZE; i += stride) {
-        atomicAdd(&hist[i], temp[i]);
+    for (int i = tid; i < HIST_SIZE; i += blockDim.x) {
+        if (sdata[i] > 0) {
+            atomicAdd(&hist[i], sdata[i]);
+        }
     }
 END_KERNEL
 
