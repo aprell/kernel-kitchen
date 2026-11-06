@@ -76,6 +76,7 @@ examples/hip/*.diff
 **/reverse
 **/saxpy
 **/saxpy_dynamic
+**/scan
 **/shared
 **/stencil
 **/transpose

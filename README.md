@@ -65,3 +65,4 @@ Usage:
 
 - J. Sanders and E. Kandrot. *CUDA by Example: An Introduction to General-Purpose GPU Programming*.
 - W. M. W. Hwu, D. B. Kirk, and I. E. Hajj. *Programming Massively Parallel Processors: A Hands-on Approach*.
+- S. Yun. *Grokking Parallel Programming*.
