@@ -3,6 +3,7 @@
 
 #ifdef __VGPU__
   #define CHECK(call) call
+  #define LAUNCH(kernel, grid, block, ...) kernel(grid, block, ##__VA_ARGS__)
 #else
   #define CHECK(call) { \
     cudaError_t error = call; \
@@ -11,7 +12,8 @@
                 #call, cudaGetErrorString(error), __FILE__, __LINE__); \
         exit(EXIT_FAILURE); \
     } \
-}
+  }
+  #define LAUNCH(kernel, grid, block, ...) kernel<<<grid, block>>>(##__VA_ARGS__)
 #endif
 
 #define ceil_div(x, y) (((x) + (y) - 1) / (y))
