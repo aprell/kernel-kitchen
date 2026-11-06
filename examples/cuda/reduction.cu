@@ -5,26 +5,26 @@
 
 #define BLOCK_SIZE 8
 
-__global__ void reduce(int n, float *in, float *out) {
-    __shared__ float temp[BLOCK_SIZE];
+__global__ void reduce(int n, const float *in, float *out) {
+    __shared__ float sdata[BLOCK_SIZE];
 
-    int gidx = blockIdx.x * blockDim.x + threadIdx.x;
-    int lidx = threadIdx.x;
+    int gid = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 
-    temp[lidx] = 0;
+    sdata[tid] = 0;
 
     // Thread-local reduction
-    for (int i = gidx; i < n; i += stride) {
-        temp[lidx] += in[i];
+    for (int i = gid; i < n; i += stride) {
+        sdata[tid] += in[i];
     }
 
     __syncthreads();
 
     // Block-local tree reduction
     for (int i = blockDim.x / 2; i > 0; i /= 2) {
-        if (lidx < i) {
-            temp[lidx] += temp[lidx + i];
+        if (tid < i) {
+            sdata[tid] += sdata[tid + i];
         }
         __syncthreads();
     }
@@ -32,8 +32,8 @@ __global__ void reduce(int n, float *in, float *out) {
 
 
     // Global reduction
-    if (lidx == 0) {
-        atomicAdd(out, temp[0]);
+    if (tid == 0) {
+        atomicAdd(out, sdata[0]);
     }
 }
 

@@ -3,7 +3,7 @@
 
 #define TILE_WIDTH 2
 
-KERNEL(transpose_read_write_coalesced, (float *A, float *AT, int M, int N),
+KERNEL(transpose_read_write_coalesced, (const float *A, float *AT, int M, int N),
     __shared__ float A_tile[TILE_WIDTH][TILE_WIDTH];)
 
     #define  A(i, j)  A[(i) * N + (j)] // M x N

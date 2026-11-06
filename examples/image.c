@@ -14,7 +14,7 @@ END_KERNEL
 
 #define RADIUS 1
 
-KERNEL(blur, (int *A, int *B, int width, int height))
+KERNEL(blur, (const int *A, int *B, int width, int height))
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     if (row < height && col < width) {
@@ -34,7 +34,7 @@ KERNEL(blur, (int *A, int *B, int width, int height))
     }
 END_KERNEL
 
-void print(int *A, int width, int height) {
+void print(const int *A, int width, int height) {
     for (int row = 0; row < height; row++) {
         for (int col = 0; col < width; col++) {
             printf("%5d", A[row * width + col]);

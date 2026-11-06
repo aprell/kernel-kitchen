@@ -2,27 +2,27 @@
 #include "vgpu.h"
 
 __global__ void init() {
-    __shared__ int a[8];
+    __shared__ int sdata[8];
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (threadIdx.x == 0) {
         for (int i = 0; i < 8; i++) {
-            a[i] = 0;
+            sdata[i] = 0;
         }
     }
 
     __syncthreads();
 
     if (idx < 8) {
-        a[idx] = idx;
+        sdata[idx] = idx;
     }
 
     __syncthreads();
 
     if (threadIdx.x == 0) {
         for (int i = 0; i < 8; i++) {
-            printf("Block %d: %d\n", blockIdx.x, a[i]);
+            printf("Block %d: %d\n", blockIdx.x, sdata[i]);
         }
     }
 }

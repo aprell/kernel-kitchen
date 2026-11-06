@@ -8,7 +8,7 @@ KERNEL(reverse, (float *a, int n))
     int stride = blockDim.x * gridDim.x;
 
     // Grid-stride loop
-    for (int i = idx; i < n/2; i += stride) {
+    for (int i = idx; i < n / 2; i += stride) {
         float t = a[i];
         a[i] = a[n - 1 - i];
         a[n - 1 - i] = t;

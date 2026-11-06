@@ -2,7 +2,7 @@
 #include "matrix.h"
 #include "vgpu.h"
 
-__global__ void matmul(float *A, float *B, float *C, int M, int N, int K) {
+__global__ void matmul(const float *A, const float *B, float *C, int M, int N, int K) {
     #define A(i, j) A[(i) * K + (j)] // M x K
     #define B(i, j) B[(i) * N + (j)] // K x N
     #define C(i, j) C[(i) * N + (j)] // M x N

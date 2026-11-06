@@ -6,30 +6,28 @@
 #define BLOCK_SIZE 8
 
 KERNEL(dot, (const float *a, const float *b, float *c, int n),
-    __shared__ float temp[BLOCK_SIZE];)
-    int gidx = blockIdx.x * blockDim.x + threadIdx.x;
-    int lidx = threadIdx.x;
+    __shared__ float sdata[BLOCK_SIZE];)
+    int gid = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 
     float tmp = 0;
-
-    for (int i = gidx; i < n; i += stride) {
+    for (int i = gid; i < n; i += stride) {
         tmp += a[i] * b[i];
     }
 
-    temp[lidx] = tmp;
-
+    sdata[tid] = tmp;
     __syncthreads();
 
     for (int i = blockDim.x / 2; i > 0; i /= 2) {
-        if (lidx < i) {
-            temp[lidx] += temp[lidx + i];
+        if (tid < i) {
+            sdata[tid] += sdata[tid + i];
         }
         __syncthreads();
     }
 
-    if (lidx == 0) {
-        atomicAdd(c, temp[0]);
+    if (tid == 0) {
+        atomicAdd(c, sdata[0]);
     }
 END_KERNEL
 

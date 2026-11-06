@@ -6,21 +6,21 @@
 #define BLOCK_SIZE 8
 #define RADIUS 3
 
-__global__ void stencil_1D(int *in, int *out) {
-    __shared__ int temp[BLOCK_SIZE + 2 * RADIUS];
+__global__ void stencil_1D(const int *in, int *out) {
+    __shared__ int sdata[BLOCK_SIZE + 2 * RADIUS];
 
-    int gidx = blockIdx.x * blockDim.x + threadIdx.x;
-    int lidx = threadIdx.x + RADIUS;
+    int gid = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = threadIdx.x + RADIUS;
 
     // Read data into shared memory
-    temp[lidx] = in[gidx];
+    sdata[idx] = in[gid];
     if (threadIdx.x < RADIUS) {
-        temp[lidx - RADIUS] = in[gidx - RADIUS];
-        temp[lidx + BLOCK_SIZE] = in[gidx + BLOCK_SIZE];
+        sdata[idx - RADIUS] = in[gid - RADIUS];
+        sdata[idx + BLOCK_SIZE] = in[gid + BLOCK_SIZE];
     }
 
-    // if (lidx >= BLOCK_SIZE) {
-    //     temp[lidx + RADIUS] = in[gidx + RADIUS];
+    // if (idx >= BLOCK_SIZE) {
+    //     sdata[idx + RADIUS] = in[gid + RADIUS];
     // }
 
     __syncthreads();
@@ -28,11 +28,11 @@ __global__ void stencil_1D(int *in, int *out) {
     // Apply stencil
     int res = 0;
     for (int i = -RADIUS; i <= RADIUS; i++) {
-        res += temp[lidx + i];
+        res += sdata[idx + i];
     }
 
     // Write back result
-    out[gidx] = res;
+    out[gid] = res;
 }
 
 int main(void) {

@@ -56,7 +56,7 @@ __global__ void kernel(unsigned char *img) {
     }
 }
 
-void display(unsigned char *img) {
+void display(const unsigned char *img) {
     for (int y = 0; y < DIM; y++) {
         for (int x = 0; x < DIM; x++) {
             int o = y * DIM + x;

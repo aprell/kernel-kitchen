@@ -4,7 +4,7 @@
 
 #define TILE_WIDTH 2
 
-__global__ void transpose_read_write_coalesced(float *A, float *AT, int M, int N) {
+__global__ void transpose_read_write_coalesced(const float *A, float *AT, int M, int N) {
     __shared__ float A_tile[TILE_WIDTH][TILE_WIDTH];
 
 

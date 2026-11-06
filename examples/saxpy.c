@@ -7,7 +7,7 @@
   #define restrict __restrict__
 #endif
 
-KERNEL(saxpy, (int n, float a, float *restrict x, float *restrict y))
+KERNEL(saxpy, (int n, float a, const float *restrict x, float *restrict y))
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
 #ifdef DEBUG

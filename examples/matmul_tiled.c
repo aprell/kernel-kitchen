@@ -3,7 +3,7 @@
 
 #define TILE_WIDTH 2
 
-KERNEL(matmul, (float *A, float *B, float *C, int M, int N, int K),
+KERNEL(matmul, (const float *A, const float *B, float *C, int M, int N, int K),
     __shared__ float A_tile[TILE_WIDTH][TILE_WIDTH];
     __shared__ float B_tile[TILE_WIDTH][TILE_WIDTH];)
 

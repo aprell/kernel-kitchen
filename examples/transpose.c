@@ -2,7 +2,7 @@
 #include "matrix.h"
 #include "vgpu.h"
 
-KERNEL(transpose_read_coalesced, (float *A, float *AT, int M, int N))
+KERNEL(transpose_read_coalesced, (const float *A, float *AT, int M, int N))
     #define  A(i, j)  A[(i) * N + (j)] // M x N
     #define AT(i, j) AT[(i) * M + (j)] // N x M
 
@@ -17,7 +17,7 @@ KERNEL(transpose_read_coalesced, (float *A, float *AT, int M, int N))
     #undef AT
 END_KERNEL
 
-KERNEL(transpose_write_coalesced, (float *A, float *AT, int M, int N))
+KERNEL(transpose_write_coalesced, (const float *A, float *AT, int M, int N))
     #define  A(i, j)  A[(i) * N + (j)] // M x N
     #define AT(i, j) AT[(i) * M + (j)] // N x M
 
